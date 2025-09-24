@@ -13,6 +13,8 @@ PPL_Counter/
 ├── datasets/
 │   └── mall_dataset/
 │
+│── docs/
+│
 └── src/
     ├── __init__.py
     ├── data_loader.py
@@ -72,6 +74,7 @@ You should see something like:
 ### 5. Dataset
 
 Place the Mall dataset inside `datasets/mall_dataset/`.
+Dataset origin can be found [here](https://personal.ie.cuhk.edu.hk/~ccloy/downloads_mall_dataset.html).
 
 The folder should include:
 - `frames/`
@@ -81,7 +84,7 @@ The folder should include:
 
 ## Next Steps
 
-- Implement data loading and preprocessing in `src/data_loader.py`
+- Implement data loading and preprocessing in `src/data_loader.py`. Progress described [here](docs/DATA_LOADER.md).
 - Implement CNN model for density map regression in `src/model.py`
 - Train the model using `src/train.py`
 
