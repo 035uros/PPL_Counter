@@ -1,29 +1,24 @@
 # PPL_Counter
 
-Starting with a simple demo project (for now) for people counting and density map generation using the Mall dataset.
-
----
+Project for people counting and heat/density map generation.
 
 ## Project Structure
 
+```
 PPL_Counter/
-│ .gitignore
-│ requirements.txt
-│ main.py
+│   .gitignore
+│   requirements.txt
+│   main.py
 │
 ├── datasets/
-│ └── mall_dataset/ # pre-downloaded dataset
+│   └── mall_dataset/
 │
-├── src/
-│ ├── init.py
-│ ├── data_loader.py
-│ ├── model.py
-│ └── train.py
-
-yaml
-Copy code
-
----
+└── src/
+    ├── __init__.py
+    ├── data_loader.py
+    ├── model.py
+    └── train.py
+```
 
 ## Getting Started
 
@@ -32,67 +27,66 @@ Copy code
 ```bash
 git clone https://github.com/035uros/PPL_Counter.git
 cd PPL_Counter
-2. Set up Python virtual environment
-On Windows PowerShell:
+```
 
-powershell
-Copy code
+### 2. Set up Python virtual environment
+
+**Windows PowerShell:**
+```powershell
 # Create virtual environment
 py -m venv venv
 
-# Allow script execution temporarily (needed for PowerShell)
+# Allow script execution temporarily
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
-# Activate the virtual environment
+# Activate virtual environment
 .\venv\Scripts\activate
-On Command Prompt (CMD):
+```
 
-cmd
-Copy code
+**Command Prompt (CMD):**
+```cmd
 py -m venv venv
 venv\Scripts\activate.bat
-Once activated, you should see (venv) in front of your terminal prompt.
+```
 
-3. Install dependencies
-bash
-Copy code
+After activation, you should see `(venv)` in front of your prompt.
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-4. Verify installation
-bash
-Copy code
-python main.py
-You should see something like:
+```
 
-sql
-Copy code
+### 4. Verify installation
+
+```bash
+python main.py
+```
+
+You should see something like:
+```
 ✅ PyTorch check: 2.x.x+cpu
 ✅ NumPy check: 1.x.x
-5. Dataset
-Place the Mall dataset inside datasets/mall_dataset/.
+```
+
+### 5. Dataset
+
+Place the Mall dataset inside `datasets/mall_dataset/`.
 
 The folder should include:
+- `frames/`
+- `mall_gt.mat`
+- `mall_feat.mat`
+- `perspective_roi.mat`
 
-frames/
+## Next Steps
 
-mall_gt.mat
+- Implement data loading and preprocessing in `src/data_loader.py`
+- Implement CNN model for density map regression in `src/model.py`
+- Train the model using `src/train.py`
 
-mall_feat.mat
+## Notes
 
-perspective_roi.mat
-
-6. Next Steps
-Implement data loading and preprocessing in src/data_loader.py.
-
-Implement your CNN model for density map regression in src/model.py.
-
-Train the model using src/train.py.
-
-Notes
-Python 3.13+ is recommended.
-
-Tested with PyTorch 2.8+ (CPU version).
-
-Make sure the virtual environment is activated before running scripts.
-
-yaml
-Copy code
+- Python 3.13+ is recommended
+- Tested with PyTorch 2.8+ (CPU version)
+- Make sure the virtual environment is activated before running scripts
