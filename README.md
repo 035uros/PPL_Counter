@@ -74,7 +74,7 @@ You should see something like:
 ### 5. Dataset
 
 Place the Mall dataset inside `datasets/mall_dataset/`.
-Dataset origin can be found [here](https://personal.ie.cuhk.edu.hk/~ccloy/downloads_mall_dataset.html). Additional info [here](Datasets\mall_dataset\MALL_DATASET.md).
+Dataset origin can be found [here](https://personal.ie.cuhk.edu.hk/~ccloy/downloads_mall_dataset.html). Additional info [here](Datasets/mall_dataset/MALL_DATASET.md).
 
 The folder should include:
 - `frames/`
