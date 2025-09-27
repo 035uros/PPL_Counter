@@ -86,7 +86,11 @@ The folder should include:
 
 - Implement data loading and preprocessing in `src/data_loader.py`. Progress described [here](docs/DATA_LOADER.md).
 - Implement CNN model for density map regression in `src/model.py`. Progress described [here](docs/MODEL.md).
-- Train the model using `src/train.py`
+- Train the model using `src/train.py`. Progress described [here](docs/TRAIN.md).
+
+## OBJECTIONS
+
+Where to train? Explore Google Cloud, Microsoft Azure ML Studio, Amazon Sagemaker
 
 ## Notes
 

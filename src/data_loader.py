@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 from glob import glob
 import matplotlib.pyplot as plt
+import torch
 
 # Key structure check
 gt = sio.loadmat("datasets/mall_dataset/mall_gt.mat")
@@ -53,29 +54,51 @@ class MallDataset:
 
         # Load ground truth from .mat file
         gt_data = sio.loadmat(self.gt_file)
-        self.frames_info = gt_data["frame"][0]  # information about each frame
-        self.counts = gt_data["count"][0]  # number of people per frame
+        print("Keys:", gt_data.keys())
+        print("Frame shape:", gt_data["frame"].shape)
+        print("Count shape:", gt_data["count"].shape)
+
+        # convert count to 1D array
+        self.counts = gt_data["count"].flatten()
+        print("Counts sample:", self.counts[:10])
+
+        self.frames_info = gt_data["frame"].flatten()
+        print("Frames info sample type:", type(self.frames_info[0]))
+        print("Frames info first element keys:", self.frames_info[0].dtype.names)
 
         # Get all image files
         self.image_files = sorted(glob(os.path.join(self.frames_path, "*.jpg")))
+        print("Number of images:", len(self.image_files))
 
     def __len__(self):
         return len(self.image_files)
 
     def __getitem__(self, idx):
-        # Load image
         img_path = self.image_files[idx]
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # Ground truth: number of people
+        # extract points
+        frame_data = self.frames_info[idx]
+        points = frame_data['loc'][0]  # this is numpy array, but each point can be shape (1,2)
+
+        # Flatten points into list of (x,y)
+        points_list = []
+        for p in points:
+            p = np.array(p).flatten()  # for example. shape (1,2) -> (2,)
+            if p.size == 2:
+                points_list.append(p.tolist())
+
         num_people = int(self.counts[idx])
 
-        # Simple density map: uniform distribution
         h, w = img.shape[:2]
-        density_map = np.ones((h, w), dtype=np.float32) * (num_people / (h * w))
+        density_map = generate_density_map((h, w), points_list)
 
-        return img, density_map
+        # convert to tensor
+        img_tensor = torch.from_numpy(img).permute(2,0,1).float() / 255.0  # [3,H,W]
+        density_tensor = torch.from_numpy(density_map).unsqueeze(0).float()  # [1,H,W]
+
+        return img_tensor, density_tensor, torch.tensor(num_people, dtype=torch.float)
 
 
 # ----------------------------
