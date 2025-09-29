@@ -5,19 +5,13 @@ import scipy.io as sio
 import numpy as np
 import cv2
 from glob import glob
-import matplotlib.pyplot as plt
 import torch
-
-# Key structure check
-gt = sio.loadmat("datasets/mall_dataset/mall_gt.mat")
-print(gt.keys())
 
 
 # ----------------------------
 # Helper function: generate Gaussian density map
 # ----------------------------
 def gaussian_kernel(size=15, sigma=4):
-    """Generate a 2D Gaussian kernel."""
     ax = np.arange(-size // 2 + 1.0, size // 2 + 1.0)
     xx, yy = np.meshgrid(ax, ax)
     kernel = np.exp(-(xx**2 + yy**2) / (2.0 * sigma**2))
@@ -25,7 +19,6 @@ def gaussian_kernel(size=15, sigma=4):
 
 
 def generate_density_map(image_shape, points, kernel_size=15, sigma=4):
-    """Create density map from points (x,y coordinates)."""
     h, w = image_shape[:2]
     density_map = np.zeros((h, w), dtype=np.float32)
     kernel = gaussian_kernel(kernel_size, sigma)
@@ -40,6 +33,7 @@ def generate_density_map(image_shape, points, kernel_size=15, sigma=4):
         kx2, ky2 = k + (x2 - x), k + (y2 - y)
 
         density_map[y1:y2, x1:x2] += kernel[ky1:ky2, kx1:kx2]
+
     return density_map
 
 
@@ -52,22 +46,20 @@ class MallDataset:
         self.frames_path = os.path.join(dataset_path, "frames")
         self.gt_file = os.path.join(dataset_path, "mall_gt.mat")
 
-        # Load ground truth from .mat file
+        # Load ground truth
         gt_data = sio.loadmat(self.gt_file)
-        print("Keys:", gt_data.keys())
-        print("Frame shape:", gt_data["frame"].shape)
-        print("Count shape:", gt_data["count"].shape)
-
-        # convert count to 1D array
-        self.counts = gt_data["count"].flatten()
-        print("Counts sample:", self.counts[:10])
-
         self.frames_info = gt_data["frame"].flatten()
-        print("Frames info sample type:", type(self.frames_info[0]))
-        print("Frames info first element keys:", self.frames_info[0].dtype.names)
+
+        # Directly use count from mat file
+        self.counts = gt_data["count"].flatten()
+        self.counts = self.counts.astype(np.int32)
 
         # Get all image files
         self.image_files = sorted(glob(os.path.join(self.frames_path, "*.jpg")))
+
+        print("Keys:", gt_data.keys())
+        print("Frame shape:", gt_data["frame"].shape)
+        print("Counts sample:", self.counts[:10])
         print("Number of images:", len(self.image_files))
 
     def __len__(self):
@@ -78,49 +70,29 @@ class MallDataset:
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # extract points
+        # extract points for density map
         frame_data = self.frames_info[idx]
-        points = frame_data['loc'][0]  # this is numpy array, but each point can be shape (1,2)
-
-        # Flatten points into list of (x,y)
-        points_list = []
-        for p in points:
-            p = np.array(p).flatten()  # for example. shape (1,2) -> (2,)
-            if p.size == 2:
-                points_list.append(p.tolist())
-
-        num_people = int(self.counts[idx])
+        points = frame_data["loc"][0]
+        points_list = [np.array(p).flatten().tolist() for p in points]
 
         h, w = img.shape[:2]
         density_map = generate_density_map((h, w), points_list)
 
         # convert to tensor
-        img_tensor = torch.from_numpy(img).permute(2,0,1).float() / 255.0  # [3,H,W]
-        density_tensor = torch.from_numpy(density_map).unsqueeze(0).float()  # [1,H,W]
+        img_tensor = torch.from_numpy(img).permute(2, 0, 1).float() / 255.0
+        density_tensor = torch.from_numpy(density_map).unsqueeze(0).float()
+        num_people = torch.tensor(self.counts[idx], dtype=torch.float)
 
-        return img_tensor, density_tensor, torch.tensor(num_people, dtype=torch.float)
+        return img_tensor, density_tensor, num_people
 
 
 # ----------------------------
-# Test / visualize one sample
+# Quick test
 # ----------------------------
 if __name__ == "__main__":
     dataset = MallDataset()
-    img, density = dataset[0]
+    img, density, count = dataset[0]
 
     print("Image shape:", img.shape)
     print("Density map sum (count estimate):", density.sum())
-
-    # visualize
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1)
-    plt.imshow(img)
-    plt.title("Original Image")
-    plt.axis("off")
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(density, cmap="jet")
-    plt.title("Density Map")
-    plt.axis("off")
-
-    plt.show()
+    print("Ground truth count:", count)
