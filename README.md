@@ -21,6 +21,7 @@ PPL_Counter/
 └── src/
     ├── __init__.py
     ├── data_loader.py
+    ├── inference.py
     ├── model.py
     └── train.py
 ```
@@ -85,11 +86,12 @@ The folder should include:
 - `mall_feat.mat`
 - `perspective_roi.mat`
 
-## Next Steps
+## Steps taken so far
 
 - Implement data loading and preprocessing in `src/data_loader.py`. Progress described [here](docs/DATA_LOADER.md).
 - Implement CNN model for density map regression in `src/model.py`. Progress described [here](docs/MODEL.md).
 - Train the model using `src/train.py`. Progress described [here](docs/TRAIN.md).
+- Inference Module creation.  Progress described [here](docs/INFERENCE.md).
 
 ## How to work with the project
 

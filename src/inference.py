@@ -1,4 +1,5 @@
 # src/inference.py
+
 import torch
 from src.data_loader import MallDataset
 from src.model import CrowdCounterCNN  # <-- obavezno ime klase iz model.py
